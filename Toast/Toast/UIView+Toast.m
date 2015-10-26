@@ -103,7 +103,8 @@ NSString * const CSToastPositionBottom          = @"bottom";
 }
 
 - (void)makeClosableToast:(NSString *)message position:(id)position {
-    UIView *toast = [self viewForMessage:message title:nil image:nil];
+    UIView *toast = [self viewWithCrossForMessage:message title:nil image:nil];
+    
     [self showToast:toast position:position tapCallback:^{
         [self hideToast:toast];
     }];
@@ -272,6 +273,21 @@ NSString * const CSToastPositionBottom          = @"bottom";
 #pragma clang diagnostic ignored "-Wdeprecated-declarations"
     return [string sizeWithFont:font constrainedToSize:constrainedSize lineBreakMode:lineBreakMode];
 #pragma clang diagnostic pop
+}
+
+- (UIView *)viewWithCrossForMessage:(NSString *)message title:(NSString *)title image:(UIImage *)image {
+    UIView *view = [self viewForMessage:message title:title image:image];
+    
+    CGFloat crossSize = 20;
+    
+    UIImageView *crossImageView = [[UIImageView alloc] initWithImage:[UIImage imageNamed:@"cross"]];
+    crossImageView.frame = CGRectMake(CGRectGetWidth(view.frame) - crossSize*2/3, -crossSize/3, crossSize, crossSize);
+    
+    [crossImageView addGestureRecognizer:[[UITapGestureRecognizer alloc] initWithTarget:view action:@selector(handleToastTapped:)]];
+    
+    [view addSubview:crossImageView];
+    
+    return view;
 }
 
 - (UIView *)viewForMessage:(NSString *)message title:(NSString *)title image:(UIImage *)image {
