@@ -41,6 +41,9 @@ extern NSString * const CSToastPositionBottom;
 - (void)makeToast:(NSString *)message duration:(NSTimeInterval)interval position:(id)position title:(NSString *)title;
 - (void)makeToast:(NSString *)message duration:(NSTimeInterval)interval position:(id)position title:(NSString *)title image:(UIImage *)image;
 
+- (void)makeClosableToast:(NSString *)message;
+- (void)makeClosableToast:(NSString *)message position:(id)position;
+
 // displays toast with an activity spinner
 - (void)makeToastActivity;
 - (void)makeToastActivity:(id)position;

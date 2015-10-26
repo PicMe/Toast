@@ -98,6 +98,17 @@ NSString * const CSToastPositionBottom          = @"bottom";
     [self showToast:toast duration:duration position:position];  
 }
 
+- (void)makeClosableToast:(NSString *)message {
+    [self makeClosableToast:message position:nil];
+}
+
+- (void)makeClosableToast:(NSString *)message position:(id)position {
+    UIView *toast = [self viewForMessage:message title:nil image:nil];
+    [self showToast:toast position:position tapCallback:^{
+        [self hideToast:toast];
+    }];
+}
+
 - (void)showToast:(UIView *)toast {
     [self showToast:toast duration:CSToastDefaultDuration position:nil];
 }
@@ -108,10 +119,15 @@ NSString * const CSToastPositionBottom          = @"bottom";
     
 }
 
+- (void)showToast:(UIView *)toast position:(id)position tapCallback:(void(^)(void))tapCallback {
+    [self showToast:toast duration:0 position:position enableTimer:NO tapCallback:tapCallback];
+}
 
-- (void)showToast:(UIView *)toast duration:(NSTimeInterval)duration position:(id)position
-      tapCallback:(void(^)(void))tapCallback
-{
+- (void)showToast:(UIView *)toast duration:(NSTimeInterval)duration position:(id)position tapCallback:(void(^)(void))tapCallback {
+    [self showToast:toast duration:duration position:position enableTimer:YES tapCallback:tapCallback];
+}
+    
+- (void)showToast:(UIView *)toast duration:(NSTimeInterval)duration position:(id)position enableTimer:(BOOL)enableTimer tapCallback:(void(^)(void))tapCallback {
     toast.center = [self centerPointForPosition:position withToast:toast];
     toast.alpha = 0.0;
     
@@ -130,9 +146,11 @@ NSString * const CSToastPositionBottom          = @"bottom";
                      animations:^{
                          toast.alpha = 1.0;
                      } completion:^(BOOL finished) {
-                         NSTimer *timer = [NSTimer scheduledTimerWithTimeInterval:duration target:self selector:@selector(toastTimerDidFinish:) userInfo:toast repeats:NO];
-                         // associate the timer with the toast view
-                         objc_setAssociatedObject (toast, &CSToastTimerKey, timer, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
+                         if (enableTimer) {
+                             NSTimer *timer = [NSTimer scheduledTimerWithTimeInterval:duration target:self selector:@selector(toastTimerDidFinish:) userInfo:toast repeats:NO];
+                             // associate the timer with the toast view
+                             objc_setAssociatedObject (toast, &CSToastTimerKey, timer, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
+                         }
                          objc_setAssociatedObject (toast, &CSToastTapCallbackKey, tapCallback, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
                      }];
 }
